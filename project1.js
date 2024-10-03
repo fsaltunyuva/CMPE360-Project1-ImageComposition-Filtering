@@ -7,23 +7,9 @@
 var originalImage = null;
 
 function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition) {
-    // var bgData = BackGround.data;
-    // var fgData = ForeGround.data;
-    // var width = BackGround.width;
-    // var height = BackGround.height;
-    //
-    // for (var i = 0; i < fgData.length; i += 4) { // Loop through each pixel
-    //     if (fgData[i] !== 0 || fgData[i + 1] !== 0 || fgData[i + 2] !== 0) { // If the pixel is not transparent
-    //         bgData[i] = bgData[i] * (1 - ForeGroundOpacity) + fgData[i] * ForeGroundOpacity;
-    //         bgData[i + 1] = bgData[i + 1] * (1 - ForeGroundOpacity) + fgData[i + 1] * ForeGroundOpacity;
-    //         bgData[i + 2] = bgData[i + 2] * (1 - ForeGroundOpacity) + fgData[i + 2] * ForeGroundOpacity;
-    //     }
-    // }
-    //
-    // document.getElementById('canvas').getContext('2d').putImageData(BackGround, 0, 0);
-
     var bgData = BackGround.data;
     var fgData = ForeGround.data;
+
     var bgWidth = BackGround.width;
     var bgHeight = BackGround.height;
     var fgWidth = ForeGround.width;
@@ -53,24 +39,27 @@ function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition
                 //     bgData[bgIndex + 2] = bgData[bgIndex + 2] * (1 - ForeGroundOpacity) + fgData[fgIndex + 2] * ForeGroundOpacity; // Blue
                 // }
 
-                var fgAlpha = fgData[fgIndex + 3] * ForeGroundOpacity / 255; // Foreground opacity calculation to not ignore the black pixels
+                // Foreground opacity calculation to not ignore the black pixels
+                // var fgAlpha = fgData[fgIndex + 3] * ForeGroundOpacity / 255; // Foreground opacity calculation
+                var fgAlpha = (fgData[fgIndex + 3] / 255) * ForeGroundOpacity; // Foreground alpha combined with global opacity
 
                 if (fgAlpha > 0) { // Only blend if the foreground pixel is not fully transparent
-                    bgData[bgIndex] = bgData[bgIndex] * (1 - fgAlpha) + fgData[fgIndex] * fgAlpha; // Red
-                    bgData[bgIndex + 1] = bgData[bgIndex + 1] * (1 - fgAlpha) + fgData[fgIndex + 1] * fgAlpha; // Green
-                    bgData[bgIndex + 2] = bgData[bgIndex + 2] * (1 - fgAlpha) + fgData[fgIndex + 2] * fgAlpha; // Blue
+                    bgData[bgIndex] = bgData[bgIndex] * (1 - ForeGroundOpacity) + fgData[fgIndex] * ForeGroundOpacity; // Red
+                    bgData[bgIndex + 1] = bgData[bgIndex + 1] * (1 - ForeGroundOpacity) + fgData[fgIndex + 1] * ForeGroundOpacity; // Green
+                    bgData[bgIndex + 2] = bgData[bgIndex + 2] * (1 - ForeGroundOpacity) + fgData[fgIndex + 2] * ForeGroundOpacity; // Blue
                 }
+
+                //TODO: Ask if the background alpha value should change the opacity of the foreground image as well
             }
         }
     }
-
-    // Put the updated background data back on the canvas
-    document.getElementById('canvas').getContext('2d').putImageData(BackGround, 0, 0);
 }
 
 //Apply the grayscale filter to whole image if selected
 //Apply the brightness filter whole image if selected, when you click the button brightness level will increase for each click
 //Apply your filter what you want
+
+// TODO: Check if the filters are correct applied to the whole image or only to the foreground image
 
 function applyFilter() {
     var canvas = document.getElementById('canvas');
@@ -127,7 +116,7 @@ function brightness(imgData, context) {
 }
 
 function myFilter(imgData, context) { // Custom filter that changes the brightness randomly
-    // TODO: Negative effect can be used as a filter
+    // TODO: Negative effect can be used as a custom filter
     let brightnessLevel = Math.floor(Math.random() * 31) - 15; // Generate a random number between -15 and 15
 
     for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
