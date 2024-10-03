@@ -56,6 +56,8 @@ function applyFilter() {
     if (originalImage === null) { // Only in the first time
         originalImage = context.getImageData(0, 0, canvas.width, canvas.height);
     }
+    // TODO: After changing the image and setting to filter as "None",
+    //  the original image is not restored, instead  previous image loads.
 
     // Apply the selected filter
     if (filter === 'grayscale') {
@@ -75,24 +77,30 @@ function applyFilter() {
 
 function grayscale(imgData, context) {
     for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
+        // Using the formula in https://tnt.studio/converting-a-color-image-to-grayscale-with-javascript
         let grayscale = (0.2126 * imgData.data[i]) +
             (0.7152 * imgData.data[i + 1]) +
             (0.0722 * imgData.data[i + 2]);
 
+        // Set the RGB values to the grayscale value
         imgData.data[i] = grayscale;
         imgData.data[i + 1] = grayscale;
         imgData.data[i + 2] = grayscale;
-        imgData.data[i + 3] = 255; // Set the alpha
     }
+
     context.putImageData(imgData, 0, 0); // Put the new image data back to the canvas
 }
 
 function brightness(imgData, context) {
-    var data = imgData.data;
-    for (var i = 0; i < data.length; i += 4) {
-        data[i] = Math.min(data[i] + 10, 255);
-        data[i + 1] = Math.min(data[i + 1] + 10, 255);
-        data[i + 2] = Math.min(data[i + 2] + 10, 255);
+    let brightnessLevel = 10;  // Increase the brightness level by 10 for each click
+
+    for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
+        
+        // Increase the RGB values by the brightness level
+        imgData.data[i] += brightnessLevel;
+        imgData.data[i + 1] += brightnessLevel;
+        imgData.data[i + 2] += brightnessLevel;
     }
-    context.putImageData(imgData, 0);
+
+    context.putImageData(imgData, 0, 0); // Put the new image data back to the canvas
 }
