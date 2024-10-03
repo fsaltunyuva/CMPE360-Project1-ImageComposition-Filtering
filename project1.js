@@ -7,39 +7,65 @@
 var originalImage = null;
 
 function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition) {
-    var bgData = BackGround.data;
-    var fgData = ForeGround.data;
-    var width = BackGround.width;
-    var height = BackGround.height;
-
-    // // Calculate the position of the foreground image
-    // var fgX = ForeGroundPosition[0];
-    // var fgY = ForeGroundPosition[1];
-    // var fgWidth = ForeGround.width;
-    // var fgHeight = ForeGround.height;
-    // var fgStartX = Math.max(0, fgX);
-    // var fgStartY = Math.max(0, fgY);
-    // var fgEndX = Math.min(width, fgX + fgWidth);
-    // var fgEndY = Math.min(height, fgY + fgHeight);
+    // var bgData = BackGround.data;
+    // var fgData = ForeGround.data;
+    // var width = BackGround.width;
+    // var height = BackGround.height;
     //
-    // // Loop through each pixel of the foreground image
-    // for (var y = fgStartY; y < fgEndY; y++) {
-    //     for (var x = fgStartX; x < fgEndX; x++) {
-    //         var fgIndex = (y - fgY) * fgWidth * 4 + (x - fgX) * 4; // Calculate the index of the foreground pixel
-    //         var fgAlpha = fgData[fgIndex + 3] * ForeGroundOpacity; // Get the alpha of the foreground pixel and multiply it by the opacity
-    //         if (fgAlpha > 0) { // If the pixel is not transparent
-    //             var bgIndex = y * width * 4 + x * 4; // Calculate the index of the background pixel
-    //             var bgAlpha = bgData[bgIndex + 3]; // Get the alpha of the background pixel
-    //             var newAlpha = bgAlpha + fgAlpha * (1 - bgAlpha / 255); // Calculate the new alpha
-    //             for (var i = 0; i < 3; i++) { // Loop through RGB
-    //                 bgData[bgIndex + i] = (bgData[bgIndex + i] * bgAlpha + fgData[fgIndex + i] * fgAlpha * (1 - bgAlpha / 255)) / newAlpha; // Calculate the new RGB value
-    //             }
-    //             bgData[bgIndex + 3] = newAlpha; // Set the new alpha
-    //         }
+    // for (var i = 0; i < fgData.length; i += 4) { // Loop through each pixel
+    //     if (fgData[i] !== 0 || fgData[i + 1] !== 0 || fgData[i + 2] !== 0) { // If the pixel is not transparent
+    //         bgData[i] = bgData[i] * (1 - ForeGroundOpacity) + fgData[i] * ForeGroundOpacity;
+    //         bgData[i + 1] = bgData[i + 1] * (1 - ForeGroundOpacity) + fgData[i + 1] * ForeGroundOpacity;
+    //         bgData[i + 2] = bgData[i + 2] * (1 - ForeGroundOpacity) + fgData[i + 2] * ForeGroundOpacity;
     //     }
     // }
     //
-    // BackGround.data = bgData;
+    // document.getElementById('canvas').getContext('2d').putImageData(BackGround, 0, 0);
+
+    var bgData = BackGround.data;
+    var fgData = ForeGround.data;
+    var bgWidth = BackGround.width;
+    var bgHeight = BackGround.height;
+    var fgWidth = ForeGround.width;
+    var fgHeight = ForeGround.height;
+
+    var fgX = ForeGroundPosition.x; // Foreground starting X position
+    var fgY = ForeGroundPosition.y; // Foreground starting Y position
+
+    // Loop through each pixel in the foreground
+    for (var y = 0; y < fgHeight; y++) {
+        for (var x = 0; x < fgWidth; x++) {
+            // Index of the current pixel in the foreground
+            var fgIndex = (y * fgWidth + x) * 4; // 4 channels: RGBA
+
+            // Target pixel's X and Y coordinates in the background (can have negative values)
+            var bgX = x + fgX;
+            var bgY = y + fgY;
+
+            // Skip if the foreground pixel is out of bounds of the background (including negative positions)
+            if (bgX >= 0 && bgX < bgWidth && bgY >= 0 && bgY < bgHeight) {
+                var bgIndex = (bgY * bgWidth + bgX) * 4; // 4 channels: RGBA
+
+                // In this way it also ignores the black pixels with the transparent ones
+                // if (fgData[fgIndex] !== 0 || fgData[fgIndex + 1] !== 0 || fgData[fgIndex + 2] !== 0) { // If the pixel is not transparent
+                //     bgData[bgIndex] = bgData[bgIndex] * (1 - ForeGroundOpacity) + fgData[fgIndex] * ForeGroundOpacity; // Red
+                //     bgData[bgIndex + 1] = bgData[bgIndex + 1] * (1 - ForeGroundOpacity) + fgData[fgIndex + 1] * ForeGroundOpacity; // Green
+                //     bgData[bgIndex + 2] = bgData[bgIndex + 2] * (1 - ForeGroundOpacity) + fgData[fgIndex + 2] * ForeGroundOpacity; // Blue
+                // }
+
+                var fgAlpha = fgData[fgIndex + 3] * ForeGroundOpacity / 255; // Foreground opacity calculation to not ignore the black pixels
+
+                if (fgAlpha > 0) { // Only blend if the foreground pixel is not fully transparent
+                    bgData[bgIndex] = bgData[bgIndex] * (1 - fgAlpha) + fgData[fgIndex] * fgAlpha; // Red
+                    bgData[bgIndex + 1] = bgData[bgIndex + 1] * (1 - fgAlpha) + fgData[fgIndex + 1] * fgAlpha; // Green
+                    bgData[bgIndex + 2] = bgData[bgIndex + 2] * (1 - fgAlpha) + fgData[fgIndex + 2] * fgAlpha; // Blue
+                }
+            }
+        }
+    }
+
+    // Put the updated background data back on the canvas
+    document.getElementById('canvas').getContext('2d').putImageData(BackGround, 0, 0);
 }
 
 //Apply the grayscale filter to whole image if selected
@@ -62,14 +88,11 @@ function applyFilter() {
     // Apply the selected filter
     if (filter === 'grayscale') {
         grayscale(imgData, context);
-    }
-    else if (filter === 'brightness') {
+    } else if (filter === 'brightness') {
         brightness(imgData, context);
-    }
-    else if (filter === "none"){
+    } else if (filter === "none") {
         context.putImageData(originalImage, 0, 0);
-    }
-    else if (filter === 'StudentFilter') {
+    } else if (filter === 'StudentFilter') {
         myFilter(imgData, context);
     }
 }
@@ -104,6 +127,7 @@ function brightness(imgData, context) {
 }
 
 function myFilter(imgData, context) { // Custom filter that changes the brightness randomly
+    // TODO: Negative effect can be used as a filter
     let brightnessLevel = Math.floor(Math.random() * 31) - 15; // Generate a random number between -15 and 15
 
     for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
