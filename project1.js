@@ -3,6 +3,9 @@
 // ForeGroundOpacity is the opacity of the foreground image.
 // ForeGroundPosition is the foreground image's location, measured in pixels. It can be negative, and the alignment of the foreground and background's top-left pixels is indicated by (0,0).
 
+// Variable to store the original image to return to when filter is selected as "None"
+var originalImage = null;
+
 function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition) {
     var bgData = BackGround.data;
     var fgData = ForeGround.data;
@@ -49,25 +52,29 @@ function applyFilter() {
     var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
     var filter = document.getElementById('filterSelect').value;
 
-    console.log("aa")
+    // Save the original image
+    if (originalImage === null) { // Only in the first time
+        originalImage = context.getImageData(0, 0, canvas.width, canvas.height);
+    }
 
     // Apply the selected filter
     if (filter === 'grayscale') {
         grayscale(imgData, context);
-    } else if (filter === 'brightness') {
+    }
+    else if (filter === 'brightness') {
         brightness(imgData, context);
-    } else if (filter === 'StudentFilter') {
+    }
+    else if (filter === "none"){
+        context.putImageData(originalImage, 0, 0);
+    }
+    else if (filter === 'StudentFilter') {
         // My own filter
         throw new Error('Not implemented');
     }
 }
 
 function grayscale(imgData, context) {
-    for (var i = 0; i < imgData.length; i += 4) { // Loop through each pixel
-        var brightness = (imgData[i] + imgData[i + 1] + imgData[i + 2]) / 3; // Calculate the brightness of the pixel (average of RGB, not alpha)
-        // imgData[i] = brightness; // Set the new RGB value
-        // imgData[i + 1] = brightness;
-        // imgData[i + 2] = brightness;
+    for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
         let grayscale = (0.2126 * imgData.data[i]) +
             (0.7152 * imgData.data[i + 1]) +
             (0.0722 * imgData.data[i + 2]);
@@ -75,10 +82,10 @@ function grayscale(imgData, context) {
         imgData.data[i] = grayscale;
         imgData.data[i + 1] = grayscale;
         imgData.data[i + 2] = grayscale;
+        imgData.data[i + 3] = 255; // Set the alpha
     }
     context.putImageData(imgData, 0, 0); // Put the new image data back to the canvas
 }
-
 
 function brightness(imgData, context) {
     var data = imgData.data;
