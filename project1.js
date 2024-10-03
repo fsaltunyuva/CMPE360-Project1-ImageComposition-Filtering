@@ -70,8 +70,7 @@ function applyFilter() {
         context.putImageData(originalImage, 0, 0);
     }
     else if (filter === 'StudentFilter') {
-        // My own filter
-        throw new Error('Not implemented');
+        myFilter(imgData, context);
     }
 }
 
@@ -95,7 +94,19 @@ function brightness(imgData, context) {
     let brightnessLevel = 10;  // Increase the brightness level by 10 for each click
 
     for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
-        
+        // Increase the RGB values by the brightness level
+        imgData.data[i] += brightnessLevel;
+        imgData.data[i + 1] += brightnessLevel;
+        imgData.data[i + 2] += brightnessLevel;
+    }
+
+    context.putImageData(imgData, 0, 0); // Put the new image data back to the canvas
+}
+
+function myFilter(imgData, context) { // Custom filter that changes the brightness randomly
+    let brightnessLevel = Math.floor(Math.random() * 31) - 15; // Generate a random number between -15 and 15
+
+    for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
         // Increase the RGB values by the brightness level
         imgData.data[i] += brightnessLevel;
         imgData.data[i + 1] += brightnessLevel;
