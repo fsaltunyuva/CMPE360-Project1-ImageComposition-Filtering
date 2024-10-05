@@ -85,3 +85,6 @@ the provided background image, considering the given opacity and position
 arguments for the foreground image. 
 
 ### Test Examples
+
+![](https://github.com/fsaltunyuva/CMPE360-Project1-AlphaCompositingFunction/blob/main/README%20Images/Figure%201.png)
+![](https://github.com/fsaltunyuva/CMPE360-Project1-AlphaCompositingFunction/blob/main/README%20Images/Figure%202.png)
