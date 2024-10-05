@@ -19,10 +19,10 @@ function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition
     var fgY = ForeGroundPosition.y; // Foreground starting Y position
 
     // Loop through each pixel in the foreground
-    for (var y = 0; y < fgHeight; y++) {
-        for (var x = 0; x < fgWidth; x++) {
+    for (var y = 0; y < fgHeight; y++) { // Loop through each row
+        for (var x = 0; x < fgWidth; x++) { // Loop through each column
             // Index of the current pixel in the foreground
-            var fgIndex = (y * fgWidth + x) * 4; // 4 channels: RGBA
+            var fgIndex = (y * fgWidth + x) * 4; // 4 channels: RGBA (Calculate the index of the pixel in the 1D array)
 
             // Target pixel's X and Y coordinates in the background (can have negative values)
             var bgX = x + fgX;
@@ -50,6 +50,7 @@ function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition
                 }
 
                 //TODO: Ask if the background alpha value should change the opacity of the foreground image as well
+                // Currently opacity of the images can be changed separately but when the background image's opacity is changed, the foreground image's changes as well
             }
         }
     }
@@ -58,8 +59,6 @@ function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition
 //Apply the grayscale filter to whole image if selected
 //Apply the brightness filter whole image if selected, when you click the button brightness level will increase for each click
 //Apply your filter what you want
-
-// TODO: Check if the filters are correct applied to the whole image or only to the foreground image
 
 function applyFilter() {
     var canvas = document.getElementById('canvas');
@@ -115,16 +114,21 @@ function brightness(imgData, context) {
     context.putImageData(imgData, 0, 0); // Put the new image data back to the canvas
 }
 
-function myFilter(imgData, context) { // Custom filter that changes the brightness randomly
-    // TODO: Negative effect can be used as a custom filter
-    let brightnessLevel = Math.floor(Math.random() * 31) - 15; // Generate a random number between -15 and 15
+function myFilter(imgData, context) { // Custom filter that inverts the colors of the image (Negative filter)
+    // let brightnessLevel = Math.floor(Math.random() * 31) - 15; // Generate a random number between -15 and 15
+    //
+    // for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
+    //     // Increase the RGB values by the brightness level
+    //     imgData.data[i] += brightnessLevel;
+    //     imgData.data[i + 1] += brightnessLevel;
+    //     imgData.data[i + 2] += brightnessLevel;
+    // }
 
     for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
-        // Increase the RGB values by the brightness level
-        imgData.data[i] += brightnessLevel;
-        imgData.data[i + 1] += brightnessLevel;
-        imgData.data[i + 2] += brightnessLevel;
+        imgData.data[i] = 255 - imgData.data[i];       // Red
+        imgData.data[i + 1] = 255 - imgData.data[i + 1]; // Green
+        imgData.data[i + 2] = 255 - imgData.data[i + 2]; // Blue
+        // Alpha channel remains the same (imgData.data[i + 3])
     }
-
     context.putImageData(imgData, 0, 0); // Put the new image data back to the canvas
 }
