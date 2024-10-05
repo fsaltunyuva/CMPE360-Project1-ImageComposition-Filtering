@@ -87,7 +87,7 @@ function applyFilter() {
 
 function grayscale(imgData, context) {
     for (var i = 0; i < imgData.data.length; i += 4) { // Loop through each pixel
-        // Using the formula in https://tnt.studio/converting-a-color-image-to-grayscale-with-javascript
+        // Using the formula in https://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
         let grayscale = (0.2126 * imgData.data[i]) +
             (0.7152 * imgData.data[i + 1]) +
             (0.0722 * imgData.data[i + 2]);
