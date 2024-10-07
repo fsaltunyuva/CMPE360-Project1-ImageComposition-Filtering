@@ -43,6 +43,9 @@ function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition
                 var fgAlpha = (fgData[fgIndex + 3] / 255) * ForeGroundOpacity; // Foreground alpha combined with global opacity
 
                 if (fgAlpha > 0) { // Only blend if the foreground pixel is not fully transparent
+                    // Replacing the RGB values with the formula from the second page of “Image
+                    // Compositing Fundamentals” from Alvy Ray Smith
+                    // (https://www.cs.princeton.edu/courses/archive/fall00/cs426/papers/smith95a.pdf).
                     bgData[bgIndex] = bgData[bgIndex] * (1 - ForeGroundOpacity) + fgData[fgIndex] * ForeGroundOpacity; // Red
                     bgData[bgIndex + 1] = bgData[bgIndex + 1] * (1 - ForeGroundOpacity) + fgData[fgIndex + 1] * ForeGroundOpacity; // Green
                     bgData[bgIndex + 2] = bgData[bgIndex + 2] * (1 - ForeGroundOpacity) + fgData[fgIndex + 2] * ForeGroundOpacity; // Blue
