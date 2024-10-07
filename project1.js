@@ -40,7 +40,6 @@ function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition
                 // }
 
                 // Foreground opacity calculation to not ignore the black pixels
-                // var fgAlpha = fgData[fgIndex + 3] * ForeGroundOpacity / 255; // Foreground opacity calculation
                 var fgAlpha = (fgData[fgIndex + 3] / 255) * ForeGroundOpacity; // Foreground alpha combined with global opacity
 
                 if (fgAlpha > 0) { // Only blend if the foreground pixel is not fully transparent
@@ -48,9 +47,6 @@ function composite(BackGround, ForeGround, ForeGroundOpacity, ForeGroundPosition
                     bgData[bgIndex + 1] = bgData[bgIndex + 1] * (1 - ForeGroundOpacity) + fgData[fgIndex + 1] * ForeGroundOpacity; // Green
                     bgData[bgIndex + 2] = bgData[bgIndex + 2] * (1 - ForeGroundOpacity) + fgData[fgIndex + 2] * ForeGroundOpacity; // Blue
                 }
-
-                //TODO: Ask if the background alpha value should change the opacity of the foreground image as well
-                // Currently opacity of the images can be changed separately but when the background image's opacity is changed, the foreground image's changes as well
             }
         }
     }
@@ -70,8 +66,6 @@ function applyFilter() {
     if (originalImage === null) { // Only in the first time
         originalImage = context.getImageData(0, 0, canvas.width, canvas.height);
     }
-    // TODO: After changing the image and setting to filter as "None",
-    //  the original image is not restored, instead  previous image loads.
 
     // Apply the selected filter
     if (filter === 'grayscale') {
